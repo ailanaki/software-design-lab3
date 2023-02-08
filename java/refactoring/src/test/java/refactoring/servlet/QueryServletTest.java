@@ -17,8 +17,8 @@ import java.sql.Statement;
 import java.util.*;
 
 public class QueryServletTest extends BaseServletTest {
-    private final AddProductServlet addServlet = new AddProductServlet();
-    private final QueryServlet queryServlet = new QueryServlet();
+    private final AddProductServlet addServlet = new AddProductServlet(database);
+    private final QueryServlet queryServlet = new QueryServlet(database);
 
     public void createProducts() {
         assertServlet(addServlet, addExpected, Map.of("name", "candy", "price", "20"));

@@ -1,5 +1,7 @@
 package refactoring.servlet;
 
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.akirakozov.sd.refactoring.servlet.AddProductServlet;
 
@@ -7,7 +9,8 @@ import java.util.Map;
 import java.util.Random;
 
 public class AddProductServletTest extends BaseServletTest{
-    private final AddProductServlet servlet = new AddProductServlet();
+    private final AddProductServlet servlet = new AddProductServlet(database);
+
 
     @Test
     void testAdd() {

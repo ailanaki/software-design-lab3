@@ -1,5 +1,6 @@
 package refactoring.servlet;
 
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import ru.akirakozov.sd.refactoring.servlet.AddProductServlet;
 import ru.akirakozov.sd.refactoring.servlet.GetProductsServlet;
@@ -10,9 +11,8 @@ import java.util.Random;
 
 public class GetProductsServletTest extends BaseServletTest {
 
-    private final AddProductServlet addServlet = new AddProductServlet();
-    private final GetProductsServlet getServlet = new GetProductsServlet();
-
+    private final AddProductServlet addServlet = new AddProductServlet(database);
+    private final GetProductsServlet getServlet = new GetProductsServlet(database);
     @Test
     void testEmptyGet() {
         String expected = start + end;

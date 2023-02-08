@@ -1,19 +1,9 @@
 package refactoring.servlet;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.akirakozov.sd.refactoring.servlet.AddProductServlet;
-import ru.akirakozov.sd.refactoring.servlet.GetProductsServlet;
 import ru.akirakozov.sd.refactoring.servlet.QueryServlet;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.*;
 
 public class QueryServletTest extends BaseServletTest {
@@ -21,49 +11,45 @@ public class QueryServletTest extends BaseServletTest {
     private final QueryServlet queryServlet = new QueryServlet(database);
 
     public void createProducts() {
-        assertServlet(addServlet, addExpected, Map.of("name", "candy", "price", "20"));
-        assertServlet(addServlet, addExpected, Map.of("name", "pumpkin", "price", "100"));
-        assertServlet(addServlet, addExpected, Map.of("name", "pumpkin latte", "price", "350"));
-        assertServlet(addServlet, addExpected, Map.of("name", "cream", "price", "50"));
-        assertServlet(addServlet, addExpected, Map.of("name", "router", "price", "6000"));
+        assertServlet(addServlet, writer.addExpected, Map.of("name", "candy", "price", "20"));
+        assertServlet(addServlet, writer.addExpected, Map.of("name", "pumpkin", "price", "100"));
+        assertServlet(addServlet, writer.addExpected, Map.of("name", "pumpkin latte", "price", "350"));
+        assertServlet(addServlet, writer.addExpected, Map.of("name", "cream", "price", "50"));
+        assertServlet(addServlet, writer.addExpected, Map.of("name", "router", "price", "6000"));
     }
 
     @Test
     void testMax() {
         createProducts();
-        String expected = start + "<h1>Product with max price: </h1>" + endl
-                + createHTMLLine("router", "6000") + end;
+        String expected = writer.writeBody( "<h1>Product with max price: </h1>", writer.createHTMLProductLine("router", "6000"));
         assertServlet(queryServlet, expected, Map.of("command", "max"));
     }
 
     @Test
     void testMin() {
         createProducts();
-        String expected = start + "<h1>Product with min price: </h1>" + endl
-                + createHTMLLine("candy", "20") + end;
+        String expected = writer.writeBody("<h1>Product with min price: </h1>" , writer.createHTMLProductLine("candy", "20"));
         assertServlet(queryServlet, expected, Map.of("command", "min"));
     }
 
     @Test
     void testSum() {
         createProducts();
-        String expected = start + "Summary price: " + endl
-                + "6520" + endl + end;
+        String expected = writer.writeBody("Summary price: ", "6520");
         assertServlet(queryServlet, expected, Map.of("command", "sum"));
     }
 
     @Test
     void testCount() {
         createProducts();
-        String expected = start + "Number of products: " + endl
-                + "5" + endl + end;
+        String expected =  writer.writeBody("Number of products: " , "5");
         assertServlet(queryServlet, expected, Map.of("command", "count"));
     }
 
     @Test
     void testUnknown() {
         createProducts();
-        String expected = "Unknown command: blablabla" + endl;
+        String expected = "Unknown command: blablabla" + writer.endl;
         assertServlet(queryServlet, expected, Map.of("command", "blablabla"));
     }
 
@@ -80,24 +66,24 @@ public class QueryServletTest extends BaseServletTest {
             price = rand.nextInt();
             sum += price;
             map.put(name, price);
-            assertServlet(addServlet, addExpected, Map.of("name", name, "price", String.valueOf(price)));
+            assertServlet(addServlet, writer.addExpected, Map.of("name", name, "price", String.valueOf(price)));
         }
 
         Map.Entry<String, Integer> min =map.entrySet().stream().min(Map.Entry.comparingByValue()).get();
-        String expected = start + "<h1>Product with min price: </h1>" + endl +createHTMLLine(min.getKey(), min.getValue().toString()) + end;
+        String expected =  writer.writeBody("<h1>Product with min price: </h1>" , writer.createHTMLProductLine(min.getKey(), min.getValue().toString()));
         assertServlet(queryServlet, expected, Map.of("command", "min"));
 
         Map.Entry<String, Integer> max =map.entrySet().stream().max(Map.Entry.comparingByValue()).get();
-        expected = start + "<h1>Product with max price: </h1>" + endl +createHTMLLine(max.getKey(), max.getValue().toString()) + end;
+        expected =  writer.writeBody("<h1>Product with max price: </h1>" , writer.createHTMLProductLine(max.getKey(), max.getValue().toString()));
         assertServlet(queryServlet, expected, Map.of("command", "max"));
 
-        expected = start + "Summary price: " + endl + sum + endl + end;
+        expected = writer.writeBody("Summary price: ", String.valueOf(sum));
         assertServlet(queryServlet, expected, Map.of("command", "sum"));
 
-        expected = start + "Number of products: " + endl + map.size() + endl + end;
+        expected = writer.writeBody("Number of products: ", String.valueOf(map.size()));
         assertServlet(queryServlet, expected, Map.of("command", "count"));
 
-        expected = "Unknown command: more blablabla" + endl;
+        expected = "Unknown command: more blablabla" + writer.endl;
         assertServlet(queryServlet, expected, Map.of("command", "more blablabla"));
 
     }

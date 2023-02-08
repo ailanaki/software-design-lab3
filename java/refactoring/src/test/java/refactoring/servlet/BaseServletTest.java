@@ -1,7 +1,7 @@
 package refactoring.servlet;
 
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
+import ru.akirakozov.sd.refactoring.HTML.HTMLWriter;
 import ru.akirakozov.sd.refactoring.database.Database;
 
 
@@ -21,25 +21,16 @@ import static org.mockito.Mockito.when;
 public abstract class BaseServletTest {
 
     Database database = new Database();
-
-    protected final String endl = "\r\n";
-    protected final String start = "<html><body>" + endl;
-    protected final String end = "</body></html>" + endl;
-
-    protected final String addExpected =  "OK"  + endl;
+    HTMLWriter writer = new HTMLWriter();
 
     @BeforeEach
-    protected final void initialize() throws Exception {
+    protected final void initialize(){
       database.initialize();
     }
 
     @BeforeEach
-    protected final void clear() throws Exception {
+    protected final void clear(){
        database.clear();
-    }
-
-    protected String createHTMLLine(String name, String price) {
-        return name + "\t" + price + "</br>" + endl;
     }
 
     protected void assertServlet(HttpServlet servlet, String expected, Map<String, String> parameters) {

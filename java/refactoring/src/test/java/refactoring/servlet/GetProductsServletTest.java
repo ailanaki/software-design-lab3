@@ -1,6 +1,5 @@
 package refactoring.servlet;
 
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import ru.akirakozov.sd.refactoring.servlet.AddProductServlet;
 import ru.akirakozov.sd.refactoring.servlet.GetProductsServlet;
@@ -15,28 +14,27 @@ public class GetProductsServletTest extends BaseServletTest {
     private final GetProductsServlet getServlet = new GetProductsServlet(database);
     @Test
     void testEmptyGet() {
-        String expected = start + end;
-        assertServlet(getServlet, expected, Collections.emptyMap());
+        assertServlet(getServlet, writer.writeBody(), Collections.emptyMap());
     }
 
     @Test
     void testOneGet() {
         String name = "candy", price = "50";
-        String expected = start + createHTMLLine(name, price) + end;
-        assertServlet(addServlet, addExpected, Map.of("name", name, "price", price));
+        String expected = writer.writeBody(writer.createHTMLProductLine(name, price));
+        assertServlet(addServlet, writer.addExpected, Map.of("name", name, "price", price));
         assertServlet(getServlet, expected, Collections.emptyMap());
     }
     @Test
     void testMultipleGet() {
-        StringBuilder expected = new StringBuilder(start);
+        StringBuilder expected = new StringBuilder();
         int n = 100;
         Random rand = new Random();
         for (int i = 0; i < n; i++) {
             String name = String.valueOf(rand.nextInt()), price = String.valueOf(rand.nextInt());
-            expected.append(createHTMLLine(name, price));
-            assertServlet(addServlet, addExpected, Map.of("name", name, "price", price));
+            expected.append(writer.createHTMLProductLine(name, price));
+            if(i!=n-1)expected.append(writer.endl);
+            assertServlet(addServlet, writer.addExpected, Map.of("name", name, "price", price));
         }
-        expected.append(end);
-        assertServlet(getServlet, expected.toString(), Collections.emptyMap());
+        assertServlet(getServlet, writer.writeBody(expected.toString()), Collections.emptyMap());
     }
 }

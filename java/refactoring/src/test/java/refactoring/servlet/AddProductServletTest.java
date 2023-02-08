@@ -1,7 +1,5 @@
 package refactoring.servlet;
 
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.akirakozov.sd.refactoring.servlet.AddProductServlet;
 
@@ -10,11 +8,9 @@ import java.util.Random;
 
 public class AddProductServletTest extends BaseServletTest{
     private final AddProductServlet servlet = new AddProductServlet(database);
-
-
     @Test
     void testAdd() {
-        assertServlet(servlet, addExpected, Map.of("name", "candy", "price", "50"));
+        assertServlet(servlet, writer.addExpected, Map.of("name", "candy", "price", "50"));
     }
 
     @Test
@@ -22,7 +18,7 @@ public class AddProductServletTest extends BaseServletTest{
         int n = 100;
         Random rand = new Random();
         for (int i = 0; i < n; i++) {
-            assertServlet(servlet, addExpected, Map.of("name", String.valueOf(rand.nextInt()), "price", String.valueOf(rand.nextInt())));
+            assertServlet(servlet, writer.addExpected, Map.of("name", String.valueOf(rand.nextInt()), "price", String.valueOf(rand.nextInt())));
         }
     }
 }

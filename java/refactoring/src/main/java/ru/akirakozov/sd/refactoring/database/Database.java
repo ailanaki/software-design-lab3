@@ -1,5 +1,7 @@
 package ru.akirakozov.sd.refactoring.database;
 
+import ru.akirakozov.sd.refactoring.HTML.HTMLWriter;
+
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,6 +10,8 @@ import java.sql.Statement;
 import java.util.function.Consumer;
 
 public class Database {
+    private final HTMLWriter writer = new HTMLWriter();
+
     public final void initialize() {
         executeSQL("CREATE TABLE IF NOT EXISTS PRODUCT" +
                 "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
@@ -24,26 +28,31 @@ public class Database {
     }
 
     public void executeQueryList(String sql, HttpServletResponse response, String... message) {
-        executeQuery(sql, response, withError((ResultSet rs) -> {while (rs.next()) {
+        executeQuery(sql, response, withError((ResultSet rs) -> {
+            while (rs.next()) {
                 String name = rs.getString("name");
                 int price = rs.getInt("price");
                 response.getWriter().println(name + "\t" + price + "</br>");
-        }}), message);
+            }
+        }), message);
     }
+
     public void executeQueryCollect(String sql, HttpServletResponse response, String... message) {
-     executeQuery(sql, response, withError((ResultSet rs) -> {if (rs.next()) {
-                                 response.getWriter().println(rs.getInt(1));
-                             }}), message);
+        executeQuery(sql, response, withError((ResultSet rs) -> {
+            if (rs.next()) {
+                response.getWriter().println(rs.getInt(1));
+            }
+        }), message);
     }
-    private void executeQuery(String sql, HttpServletResponse response, Consumer<ResultSet> get, String... message){
+
+    private void executeQuery(String sql, HttpServletResponse response, Consumer<ResultSet> get, String... message) {
         executeCommand(withError((Statement stmt) -> {
             ResultSet rs = stmt.executeQuery(sql);
-            response.getWriter().println("<html><body>");
-            if (message.length > 0) {
-                response.getWriter().println(message[0]);
-            }
-            get.accept(rs);
-            response.getWriter().println("</body></html>");
+            writer.setWriter(response.getWriter());
+            writer.writeBody(() -> {
+                if (message.length > 0) writer.writeMessage(message[0]);
+                get.accept(rs);
+            });
             rs.close();
         }));
     }
